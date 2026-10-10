@@ -1,0 +1,87 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: iam-server
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/iam_db}
+    username: ${SPRING_DATASOURCE_USERNAME:iam_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:iam_password}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    properties:
+      hibernate:
+        dialect: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+        format_sql: false
+    show-sql: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: ${REDIS_TIMEOUT:2000ms}
+
+iam:
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000}
+  redis:
+    required: ${REDIS_REQUIRED:true}
+    embedded-fallback: ${REDIS_EMBEDDED_FALLBACK:true}
+  session:
+    max-inactive-interval-seconds: ${SESSION_INACTIVITY_TIMEOUT:1800}
+    absolute-timeout-seconds: ${SESSION_ABSOLUTE_TIMEOUT:86400}
+  mfa:
+    issuer: ${MFA_ISSUER:IAM Server}
+    encryption-key: ${MFA_ENCRYPTION_KEY:IamEnterpriseSecretKey2026Mfa!}
+    challenge-timeout-seconds: ${MFA_CHALLENGE_TIMEOUT:300}
+    max-attempts: ${MFA_MAX_ATTEMPTS:5}
+    lockout-seconds: ${MFA_LOCKOUT_SECONDS:900}
+    window-size: ${MFA_WINDOW_SIZE:1}
+  ratelimit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    auth:
+      limit: ${RATE_LIMIT_AUTH:500}
+    mfa:
+      limit: ${RATE_LIMIT_MFA:500}
+    token:
+      limit: ${RATE_LIMIT_TOKEN:500}
+    admin:
+      limit: ${RATE_LIMIT_ADMIN:500}
+    window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
+  jwt:
+    rsa:
+      private-key: ${JWT_RSA_PRIVATE_KEY:}
+      public-key: ${JWT_RSA_PUBLIC_KEY:}
+      key-id: ${JWT_RSA_KEY_ID:iam-jwt-key-2026}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  health:
+    redis:
+      enabled: ${REDIS_HEALTH_ENABLED:false}
+
+logging:
+  level:
+    root: INFO
+    com.iam: INFO
+    org.springframework.security: INFO
